@@ -4,7 +4,7 @@ Vous aurez besoin de ``Wireshark`` et du logiciel ``aircrack-ng`` pour ce labora
 
 Si vous utilisez une distribution Kali, tout est déjà pré-installé. Pour la version Windows du logiciel ``aircrack-ng``ou pour son installation sur d'autres distributions, référez-vous au
 [site web aircrack-ng](https://aircrack-ng.org) et/ou au gestionnaire de paquets de votre distribution.
- 
+
 # Identification d'un dispositif
 
 ## Introduction
@@ -42,22 +42,30 @@ Nous savons que la cible s’est hébergée à l’hôtel « Black Rain » et qu
 
 > **_Question :_** Quel filtre avez-vous utilisé
 > 
-> **_Réponse :_** 
+> **_Réponse :_** wlan.fc.type_subtype == 0x0004 
 
 ---
 > **_Question :_** Quel est l’adresse MAC de la cible ?
 > 
-> **_Réponse :_** 
+> **_Réponse :_** ca:14:d2:bf:4f:5c
 
 ---
 > **_Question :_** Quel est le nom du constructeur de l’interface sans fils de la cible ?
 > 
-> **_Réponse :_** 
+> **_Réponse :_** Broadcom (Tag: Vendor Specific: Broadcom)
 
 ---
 > **_Question :_** Quel autres endroits la cible a-t-elle probablement visités ?
-> 
-> **_Réponse :_** 
+>
+> **_Réponse :_** Tag: SSID parameter set: Starbucks
+>
+> Tag: SSID parameter set: Starbucks
+>
+> Tag: SSID parameter set: Fleur de Pains
+>
+> Tag: SSID parameter set: BlackRainHotel Free Wifi
+>
+> Tag: SSID parameter set: GVA Airport WiFi
 
 ---
 
@@ -81,6 +89,7 @@ Nous allons nous servir de l’outil ``aircrack-ng`` pour retrouver la clé de c
 
 ```
 aircrack-ng <nom-du-fichier-capture>
+On obtient : KEY FOUND! [ AB:AB:AB:CD:CD ] 
 ```
 
 Maintenant que vous avez la clé WEP, configurez la dans Wireshark afin de déchiffrer le trafic (en fonction de la version de Wireshark, ces images peuvent varier légèrement) :
@@ -103,17 +112,21 @@ Maintenant que vous avez la clé WEP, configurez la dans Wireshark afin de déch
 
 > **_Question :_** Combien de temps avez-vous attendu pour obtenir la clé WEP ?
 > 
-> **_Réponse :_** 
+> **_Réponse :_** Moins d’une seconde
 
 ---
 > **_Montrer une capture d'écran de l'obtention de la clé WEP_**
 > 
-> **_Capture ici_** 
+> ![image-20200608133106673](images/crack_wep)
 
 ---
 > **_Question :_** Arrivez-vous à récupérer les informations d’identification (credentials) de l’authentification basique http contenue dans la capture ?
-> 
-> **_Réponse :_** 
+>
+> **_Réponse :_** Dans Authorization on a :
+>
+> ![image-20200608133850842](images/credentials)
+>
+> Donc c’est admin et admin. 
 
 ---
 
@@ -139,8 +152,10 @@ Nous utiliserons Wireshark pour trouver l’authentification WPA contenue dans l
 * Analyser les messages du 4-way handshake. En particulier, essayer de trouver les chiffres aléatoires (Nonces) échangés entre le client et l’AP.
 
 > **_Fournir une capture d'écran des chiffres aléatoires_**
-> 
-> **_Capture ici_** 
+>
+> ![image-20200608140559572](images/nonce_wpa)
+>
+> Et les 3 autres de la même manière.
 
 ---
 
@@ -151,7 +166,7 @@ Nous allons nous servir de l’outil aircrack-ng et d’un dictionnaire pour ret
 
 * Copier [le dictionnaire](files/french_dico.txt) sur votre machine locale 
 * Utilisez aircrack-ng en ligne de commandes pour cracker la passphrase du réseau WPA avec le même [fichier de capture chiffrée avec WPA](files/coursWLAN-WPA.cap) que vous avez déjà copié.
- 
+
 ```
 aircrack-ng <nom-du-fichier-capture> -w <nom-du-dictionnaire>
 ```
@@ -161,25 +176,29 @@ aircrack-ng <nom-du-fichier-capture> -w <nom-du-dictionnaire>
 * Répondre aux questions suivantes :
 
 > **_Question :_** Combien de temps avez-vous attendu pour obtenir la passphrase WPA ?
-> 
+>
 > **_Réponse :_** 
+>
+> Environ 20 secondes.
+>
+> Hotspot : anticonstitutionnellement
 
 ---
 > **_Montrer une capture d'écran de l'obtention de la passphrase WPA_**
 > 
-> **_Capture ici_** 
+> ![image-20200608135437675](images/crack_wpa)
 
 ---
 > **_Question :_** Lors de la capture, la cible a fait un « ping » sur un serveur. Arrivez-vous à dire de quel serveur il s’agit ?
 
-> 
-> **_Réponse :_** 
-> 
-> Adresse IP du serveur : ?
 >
-> Nom de Domaine : ?
-
-
+> **_Réponse :_** 
+>
+> Adresse IP du serveur :  31.13.64.35
+>
+> Nom de Domaine : facebook.com
+>
+> On filtre icmp : on voit qu’il y’a un request vers 31.13.64.35, une petite recherche google et on voit que c’est facebook (d’ailleurs si on test c’est facebook)
 
 ### Exercice déchiffrement WPA 2 :
 
@@ -189,11 +208,15 @@ Nous avons enlevé une seule trame (choisie stratégiquement) du fichier de capt
 
 > **_Question :_** Est-ce que vous arrivez à refaire l'exercice ? Pourquoi ou pourquoi pas ?
 > 
-> **_Réponse :_** 
+> **_Réponse :_**  Non, la trame contenant le hash du mot de passe entré par l’utilisateur à été effacée.
 
 ---
 > **_Question :_** Sur la base de votre réponse précédente, arrivez-vous à déduire quelle trame a été effacée ?
 
-> 
 > **_Réponse :_** 
-> 
+>
+> Le paquet 2 du 4 way handshake. C’est celle qui contient le hash du mot de passe entré par l’utilisateur.
+>
+> On peut verifier en comparant les deux captures avec un filtre `eapol` on obtient : 
+>
+> ![image-20200608140753010](images/diff)
