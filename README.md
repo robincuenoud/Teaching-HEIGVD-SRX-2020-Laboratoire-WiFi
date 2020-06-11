@@ -46,18 +46,22 @@ Nous savons que la cible s’est hébergée à l’hôtel « Black Rain » et qu
 
 ---
 > **_Question :_** Quel est l’adresse MAC de la cible ?
-> 
-> **_Réponse :_** ca:14:d2:bf:4f:5c
+>
+> **_Réponse :_** fc:f1:36:22:49:74
+>
+> ![image-20200611135325805](images/image-20200611135325805.png)
 
 ---
 > **_Question :_** Quel est le nom du constructeur de l’interface sans fils de la cible ?
 > 
-> **_Réponse :_** Broadcom (Tag: Vendor Specific: Broadcom)
+> **_Réponse :_** Samsung Electronics
 
 ---
 > **_Question :_** Quel autres endroits la cible a-t-elle probablement visités ?
 >
-> **_Réponse :_** Tag: SSID parameter set: Starbucks
+> **_Réponse :_** On regarde les autres probe request et on obtient :
+>
+>  Tag: SSID parameter set: Starbucks
 >
 > Tag: SSID parameter set: Starbucks
 >
@@ -66,6 +70,8 @@ Nous savons que la cible s’est hébergée à l’hôtel « Black Rain » et qu
 > Tag: SSID parameter set: BlackRainHotel Free Wifi
 >
 > Tag: SSID parameter set: GVA Airport WiFi
+>
+> Donc probablement tous ces lieux.
 
 ---
 
@@ -107,6 +113,8 @@ Maintenant que vous avez la clé WEP, configurez la dans Wireshark afin de déch
 ![Configuration de la clé WEP dans Wireshark](images/cle-wep.png)
 
 * Essayez à nouveau de lire le contenu de la capture. Utilisez encore une fois des filtres de protocoles connus (http, icmp). Est-ce que vous arrivez à trouver des trames contenant ces protocoles cette fois-ci ?
+
+  sans problèmes
 
 * Répondre aux questions suivantes :
 
@@ -155,7 +163,9 @@ Nous utiliserons Wireshark pour trouver l’authentification WPA contenue dans l
 >
 > ![image-20200608140559572](images/nonce_wpa)
 >
-> Et les 3 autres de la même manière.
+> Et le deuxième chiffres :
+>
+> ![image-20200611135807388](images/image-20200611135807388.png)
 
 ---
 
@@ -179,7 +189,7 @@ aircrack-ng <nom-du-fichier-capture> -w <nom-du-dictionnaire>
 >
 > **_Réponse :_** 
 >
-> Environ 20 secondes.
+> Environ 20 seconde.
 >
 > Hotspot : anticonstitutionnellement
 
@@ -208,14 +218,14 @@ Nous avons enlevé une seule trame (choisie stratégiquement) du fichier de capt
 
 > **_Question :_** Est-ce que vous arrivez à refaire l'exercice ? Pourquoi ou pourquoi pas ?
 > 
-> **_Réponse :_**  Non, la trame contenant le hash du mot de passe entré par l’utilisateur à été effacée.
+> **_Réponse :_**  Non, la trame d’envoi du SNonce et le sorte de hash fait avec le SSID l’adresse MAC et la clé WPA à été enlevé.  Donc `aircrack` ne trouve pas de suites de paquets exploitable.
 
 ---
 > **_Question :_** Sur la base de votre réponse précédente, arrivez-vous à déduire quelle trame a été effacée ?
 
 > **_Réponse :_** 
 >
-> Le paquet 2 du 4 way handshake. C’est celle qui contient le hash du mot de passe entré par l’utilisateur.
+> Le paquet 2 du 4 way handshake. 
 >
 > On peut verifier en comparant les deux captures avec un filtre `eapol` on obtient : 
 >
