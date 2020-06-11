@@ -61,8 +61,6 @@ Nous savons que la cible s’est hébergée à l’hôtel « Black Rain » et qu
 >
 > **_Réponse :_** On regarde les autres probe request et on obtient :
 >
->  Tag: SSID parameter set: Starbucks
->
 > Tag: SSID parameter set: Starbucks
 >
 > Tag: SSID parameter set: Fleur de Pains
